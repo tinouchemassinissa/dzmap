@@ -533,7 +533,7 @@ function App() {
           <button className="icon-btn music-toggle" onClick={toggleMusic} title="Toggle Music">
             {musicPlaying ? "🔊" : "🔇"}
           </button>
-          <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '5px', zIndex: 100 }}>
+          <div className="language-switcher">
             <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             <button className={`lang-btn ${lang === 'fr' ? 'active' : ''}`} onClick={() => setLang('fr')}>FR</button>
             <button className={`lang-btn ${lang === 'ar' ? 'active' : ''}`} onClick={() => setLang('ar')}>AR</button>
@@ -653,11 +653,11 @@ function App() {
           {musicPlaying ? "🔊" : "🔇"}
         </button>
         {mode === 'STUDY' && (
-          <button className="icon-btn" onClick={() => setShowLabels(!showLabels)} title="Toggle Labels" style={{ position: 'absolute', top: '20px', left: '120px', zIndex: 100 }}>
+          <button className="icon-btn labels-toggle" onClick={() => setShowLabels(!showLabels)} title="Toggle Labels" aria-pressed={showLabels}>
             🏷️
           </button>
         )}
-        <div style={{ position: 'absolute', top: '20px', right: '70px', display: 'flex', gap: '5px', zIndex: 100 }}>
+        <div className="language-switcher">
             <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             <button className={`lang-btn ${lang === 'fr' ? 'active' : ''}`} onClick={() => setLang('fr')}>FR</button>
             <button className={`lang-btn ${lang === 'ar' ? 'active' : ''}`} onClick={() => setLang('ar')}>AR</button>
@@ -857,7 +857,7 @@ function App() {
                   setGuessedWilayas({});
                   setMapView(DEFAULT_VIEW);
                 }
-              }} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>✖</button>
+              }} style={{ background: 'none', border: 'none', color: 'var(--text-main)', fontSize: '2rem', cursor: 'pointer' }}>✖</button>
             </div>
             
             {studyData.loading ? (
