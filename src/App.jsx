@@ -357,7 +357,7 @@ function App() {
            sourceType: usesOfficialReformSource ? 'official' : 'wikipedia',
            factStatus: WILAYA_DATA[stateName]?.fact_status,
            url: usesOfficialReformSource
-             ? ALGERIA_ADMIN_META.official_source
+             ? ALGERIA_ADMIN_META.naming_source
              : `https://${wikiLang}.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
         });
       }
