@@ -192,7 +192,9 @@ function App() {
         const newBadges = [...unlockedBadges, badgeId];
         setUnlockedBadges(newBadges);
         localStorage.setItem("algeriaMapBadges", JSON.stringify(newBadges));
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.3 }, colors: ['#facc15'] });
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          confetti({ particleCount: 100, spread: 80, origin: { y: 0.3 }, colors: ['#facc15'] });
+        }
       }
     }
   };
@@ -229,7 +231,7 @@ function App() {
     setMapView(DEFAULT_VIEW);
     pickNewTarget({});
     
-    // Play Yankee Doodle via audio element
+    // Start the local background music after the user gesture
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
       bgMusic.currentTime = 0;
@@ -333,29 +335,6 @@ function App() {
     processAnswer(correct, targetWilaya, null);
   };
 
-  const handleMapClick = (geo, evt) => {
-    if (gameOver || currentFact || !gameStarted) return;
-    const stateName = geo.properties.name;
-
-    if (mode === 'STUDY') {
-      if (WILAYA_NAMES.includes(stateName)) {
-        setCurrentFact({
-          state: stateName,
-          text: WILAYA_DATA[stateName].fact,
-          pointsEarned: 0
-        });
-      }
-      return;
-    }
-
-    if (mode === 'REVERSE' || mode === 'TRIVIA') return; // In these modes, use buttons
-    
-    if (guessedWilayas[stateName] === "correct" || !WILAYA_NAMES.includes(stateName)) return;
-
-    // Pass the click coordinates for the floating combo text
-    handleGuess(stateName, evt);
-  };
-
   const handleGuessMap = (guess, evt) => {
     if (gameOver || currentFact || !gameStarted) return;
     processAnswer(guess === targetWilaya, guess, evt);
@@ -369,13 +348,17 @@ function App() {
       if (WILAYA_NAMES.includes(stateName)) {
         setTargetWilaya(stateName);
         
+        const usesOfficialReformSource = WILAYA_DATA[stateName]?.created === 2026;
+        const wikiLang = lang === 'ar' ? 'ar' : lang === 'fr' ? 'fr' : 'en';
         setStudyData({
            stateName,
            extract: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
            thumbnail: null,
-           url: WILAYA_DATA[stateName]?.created === 2026
+           sourceType: usesOfficialReformSource ? 'official' : 'wikipedia',
+           factStatus: WILAYA_DATA[stateName]?.fact_status,
+           url: usesOfficialReformSource
              ? ALGERIA_ADMIN_META.official_source
-             : `https://en.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
+             : `https://${wikiLang}.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
         });
       }
       return;
@@ -398,18 +381,29 @@ function App() {
           setMapView(REGION_VIEWS[region]);
         }
         
-        const regionLabelAr = "الولايات في هذه المنطقة:";
-        const regionLabelFr = "Wilayas dans cette région :";
-        const regionLabelEn = "Wilayas in this region:";
-        const extractText = lang === 'ar' ? `${regionLabelAr} ${regionStates.map(w => WILAYA_DATA[w]?.name_ar || w).join('، ')}` :
-                            lang === 'fr' ? `${regionLabelFr} ${regionStates.join(', ')}` :
-                            `${regionLabelEn} ${regionStates.join(', ')}`;
+        const regionLabelAr = "الولايات في هذه المجموعة:";
+        const regionLabelFr = "Wilayas dans ce groupe :";
+        const regionLabelEn = "Wilayas in this group:";
+        const disclaimer = lang === 'ar'
+          ? "هذه مجموعة تعليمية عامة داخل التطبيق وليست تقسيماً إدارياً رسمياً للجزائر."
+          : lang === 'fr'
+            ? "Il s'agit d'un regroupement pédagogique de l'application, et non d'une division administrative officielle de l'Algérie."
+            : "This is a broad learning group used by the app, not an official Algerian administrative division.";
+        const memberNames = regionStates.map((wilaya) => getWilayaDisplayName(wilaya));
+        const extractText = lang === 'ar'
+          ? `${regionLabelAr} ${memberNames.join('، ')}`
+          : lang === 'fr'
+            ? `${regionLabelFr} ${memberNames.join(', ')}`
+            : `${regionLabelEn} ${memberNames.join(', ')}`;
+        const regionTitle = t.regions[region] || region;
         
         setStudyData({
-          stateName: `${region} Learning Region`,
-          extract: `${extractText} — This is a broad learning group used by the app, not an official Algerian administrative division.`,
+          stateName: `${regionTitle} — ${lang === 'ar' ? 'مجموعة تعليمية' : lang === 'fr' ? 'groupe pédagogique' : 'Learning Region'}`,
+          extract: `${extractText} — ${disclaimer}`,
           thumbnail: null,
-          url: `https://en.wikipedia.org/wiki/Geography_of_Algeria`
+          sourceType: 'learning-region',
+          factStatus: 'learning-group',
+          url: ALGERIA_ADMIN_META.ministry_source
         });
       }
       return;
@@ -452,12 +446,14 @@ function App() {
         setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1500);
       }
       
-      confetti({
-        particleCount: 50 + (newStreak * 10),
-        spread: 60,
-        origin: { y: 0.8 },
-        colors: ['#22c55e', '#ffffff', '#3b82f6', '#facc15']
-      });
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        confetti({
+          particleCount: Math.min(100, 36 + (newStreak * 6)),
+          spread: 60,
+          origin: { y: 0.8 },
+          colors: ['#22c55e', '#ffffff', '#3b82f6', '#facc15']
+        });
+      }
 
       if (mode === 'TIME_ATTACK') {
         setCurrentFact(null);
@@ -518,9 +514,9 @@ function App() {
 
   const getWilayaDisplayName = (wilayaName) => {
     if (!wilayaName || !WILAYA_DATA[wilayaName]) return wilayaName;
-    return lang === 'ar' && WILAYA_DATA[wilayaName].name_ar 
-      ? WILAYA_DATA[wilayaName].name_ar 
-      : wilayaName;
+    if (lang === 'ar' && WILAYA_DATA[wilayaName].name_ar) return WILAYA_DATA[wilayaName].name_ar;
+    if (lang === 'fr' && WILAYA_DATA[wilayaName].name_fr) return WILAYA_DATA[wilayaName].name_fr;
+    return wilayaName;
   };
 
   return (
@@ -551,7 +547,7 @@ function App() {
                   <div><strong>Author:</strong> Massinissa TINOUCHE</div>
                   <div><strong>Address:</strong> Algeria</div>
                   <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', borderLeft: '4px solid var(--accent-blue)' }}>
-                    <strong>Algeria Wilaya Explorer</strong> is an interactive educational PWA designed to help students learn about the 69 Algerian wilayas, their capitals, and geographic regions. The current legal structure contains {ALGERIA_ADMIN_META.official_wilaya_count} wilayas and {ALGERIA_ADMIN_META.official_commune_count} communes; the 2026 transition of responsibilities continues through 31 December 2026. Play offline, earn badges, and compete on the global leaderboard!
+                    <strong>Algeria Wilaya Explorer</strong> is an interactive educational PWA designed to help students learn about Algeria's {ALGERIA_ADMIN_META.official_wilaya_count} current wilayas, their capitals, and broad learning regions. The current legal structure contains {ALGERIA_ADMIN_META.official_wilaya_count} wilayas and {ALGERIA_ADMIN_META.official_commune_count} communes; the 2026 transition of responsibilities continues through 31 December 2026. Play offline, earn badges, and compete on the global leaderboard!
                   </div>
                 </div>
                 <button className="btn-primary" onClick={() => setShowAbout(false)} style={{ marginTop: '2rem' }}>
@@ -642,10 +638,18 @@ function App() {
       </div>
       ) : (
       <div className={`game-container ${lang === 'ar' ? 'rtl-layout' : ''}`}>
-        <button className="icon-btn home-btn" onClick={() => setGameStarted(false)} title="Back to Menu">
+        <button className="icon-btn home-btn" onClick={() => setGameStarted(false)} title={t.backToMenu} aria-label={t.backToMenu}>
           🏠
         </button>
-        <button className="icon-btn music-toggle" onClick={toggleMusic} title="Toggle Music">
+        <button
+          className="icon-btn theme-toggle"
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          title={isDarkMode ? "Light theme" : "Dark theme"}
+          aria-label={isDarkMode ? "Switch to light theme" : "Switch to dark theme"}
+        >
+          {isDarkMode ? "☀️" : "🌙"}
+        </button>
+        <button className="icon-btn music-toggle" onClick={toggleMusic} title="Toggle Music" aria-pressed={musicPlaying}>
           {musicPlaying ? "🔊" : "🔇"}
         </button>
         {mode === 'STUDY' && (
@@ -808,7 +812,11 @@ function App() {
         <div className="options-grid">
           {options.map((opt, i) => (
             <button key={i} className="option-btn" onClick={() => handleGuess(opt)}>
-              {mode === 'REVERSE' ? getWilayaDisplayName(opt) : opt}
+              {mode === 'REVERSE'
+                ? getWilayaDisplayName(opt)
+                : triviaQuestion === 'region'
+                  ? (t.regions[opt] || opt)
+                  : opt}
             </button>
           ))}
         </div>
@@ -871,10 +879,19 @@ function App() {
                 <div className="fact-box" style={{ fontSize: mode === 'REGIONS' ? '0.9rem' : '1.1rem', lineHeight: mode === 'REGIONS' ? '1.4' : '1.6', maxHeight: '30vh', overflowY: 'auto' }}>
                   {mode !== 'REGIONS' && WILAYA_DATA[studyData.stateName] ? (lang === 'ar' && WILAYA_DATA[studyData.stateName]?.fact_ar ? WILAYA_DATA[studyData.stateName].fact_ar : lang === 'fr' && WILAYA_DATA[studyData.stateName]?.fact_fr ? WILAYA_DATA[studyData.stateName].fact_fr : studyData.extract) : studyData.extract}
                 </div>
+                {studyData.factStatus === 'legacy-local-fact' && (
+                  <div className="fact-source-status">
+                    {lang === 'ar'
+                      ? 'معلومة تعليمية قديمة داخل التطبيق؛ مراجعة المصدر التفصيلية ما زالت مطلوبة.'
+                      : lang === 'fr'
+                        ? 'Fait pédagogique hérité : une vérification source par source reste à faire.'
+                        : 'Legacy learning fact: source-by-source verification is still pending.'}
+                  </div>
+                )}
                 
                 {studyData.url && (
                   <a href={studyData.url} target="_blank" rel="noreferrer" className="btn-primary" style={{ textDecoration: 'none', textAlign: 'center', background: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '1.2rem' }}>📖</span> {t.readMoreWiki}
+                    <span style={{ fontSize: '1.2rem' }}>📖</span> {studyData.sourceType === 'official' || studyData.sourceType === 'learning-region' ? t.officialSource : t.readMoreWiki}
                   </a>
                 )}
               </div>
@@ -888,7 +905,7 @@ function App() {
           <div className="glass-panel modal">
             <div className="mascot">{(mode === 'TIME_ATTACK' ? timeLeft <= 0 : lives <= 0) ? "😢" : "🏆"}</div>
             <h2 className="title" style={{ fontSize: '3.5rem' }}>
-              {(mode === 'TIME_ATTACK' ? timeLeft <= 0 : lives <= 0) ? "Game Over" : "You Win!"}
+              {(mode === 'TIME_ATTACK' ? timeLeft <= 0 : lives <= 0) ? t.gameOver : t.youWin}
             </h2>
             <div className="stat-box" style={{ margin: '1rem 0' }}>
               <span className="stat-label">{t.finalScore}</span>
@@ -908,7 +925,7 @@ function App() {
             )}
 
             <button className="btn-primary" onClick={() => setGameStarted(false)}>
-              Back to Menu ↩️
+              {t.backToMenu} ↩️
             </button>
           </div>
         </div>
