@@ -968,3 +968,77 @@ body[data-theme='light'] .fact-box {
     font-size: 0.82rem;
   }
 }
+
+
+.language-switcher {
+  position: fixed;
+  top: max(1.1rem, env(safe-area-inset-top));
+  right: max(4.8rem, calc(env(safe-area-inset-right) + 4.3rem));
+  display: flex;
+  gap: 0.3rem;
+  z-index: 110;
+}
+
+.theme-toggle {
+  left: max(4.8rem, calc(env(safe-area-inset-left) + 4.3rem));
+}
+
+.labels-toggle {
+  left: max(8.4rem, calc(env(safe-area-inset-left) + 7.9rem));
+}
+
+.fact-source-status {
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .language-switcher {
+    top: max(0.7rem, env(safe-area-inset-top));
+    right: max(4rem, calc(env(safe-area-inset-right) + 3.55rem));
+  }
+
+  .theme-toggle {
+    left: max(3.8rem, calc(env(safe-area-inset-left) + 3.35rem));
+  }
+
+  .labels-toggle {
+    left: max(6.95rem, calc(env(safe-area-inset-left) + 6.5rem));
+  }
+}
+
+@media (max-width: 520px) {
+  .language-switcher {
+    position: static;
+    align-self: center;
+    margin-top: 0.15rem;
+    order: -1;
+    z-index: 20;
+  }
+
+  .home-screen .language-switcher {
+    position: absolute;
+    top: max(3.9rem, calc(env(safe-area-inset-top) + 3.35rem));
+    right: max(0.6rem, env(safe-area-inset-right));
+  }
+
+  .game-container > .language-switcher {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin: 0.2rem auto 0.35rem;
+  }
+
+  .theme-toggle {
+    left: max(3.75rem, calc(env(safe-area-inset-left) + 3.3rem));
+  }
+
+  .labels-toggle {
+    left: max(6.9rem, calc(env(safe-area-inset-left) + 6.45rem));
+  }
+}
