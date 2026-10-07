@@ -579,7 +579,7 @@ function App() {
           )}
 
         <main className="glass-panel home-panel">
-          <div className="mascot"><img src="/pwa-192x192.png" alt="Icon" width="48" height="48" style={{ borderRadius: '50%' }} /></div>
+          <div className="mascot"><img src="/pwa-512x512.png" alt="Icon" width="48" height="48" style={{ borderRadius: '50%' }} /></div>
           <h1 className="title">{t.title}</h1>
           
           <input 
@@ -660,7 +660,7 @@ function App() {
         </div>
       <div className="header">
         <div className="title-container">
-          <span className="mascot"><img src="/pwa-192x192.png" alt="Icon" width="40" height="40" style={{ borderRadius: '50%' }} /></span>
+          <span className="mascot"><img src="/pwa-512x512.png" alt="Icon" width="40" height="40" style={{ borderRadius: '50%' }} /></span>
           <h1 className="title" style={{ fontSize: '2.5rem' }}>
             {playerName === 'Explorer' ? t.explorersChallenge : `${playerName}'s Challenge!`}
           </h1>
