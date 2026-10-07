@@ -17,7 +17,7 @@ export const TRANSLATIONS = {
       REVERSE: "We highlight the wilaya, you guess the name.",
       TRIVIA: "Test your deep knowledge of Algerian wilayas.",
       STUDY: "Click around the map to learn facts and capitals.",
-      REGIONS: "Explore the different geographic regions."
+      REGIONS: "Explore broad learning regions (not an official administrative tier)."
     },
     about: "About",
     home: "Home",
@@ -80,7 +80,7 @@ export const TRANSLATIONS = {
       REVERSE: "Nous surlignons, vous devinez le nom.",
       TRIVIA: "Testez vos connaissances sur les wilayas.",
       STUDY: "Cliquez sur la carte pour apprendre.",
-      REGIONS: "Explorez les différentes régions géographiques."
+      REGIONS: "Explorez de grands ensembles pédagogiques (non administratifs)."
     },
     about: "À propos",
     home: "Accueil",
@@ -143,7 +143,7 @@ export const TRANSLATIONS = {
       REVERSE: "نحن نحدد الولاية، وأنت تخمن الاسم.",
       TRIVIA: "اختبر معرفتك العميقة بولايات الجزائر.",
       STUDY: "انقر على الخريطة لتعلم الحقائق والعواصم.",
-      REGIONS: "استكشف المناطق الجغرافية المختلفة."
+      REGIONS: "استكشف مجموعات جغرافية تعليمية عامة وليست تقسيماً إدارياً رسمياً."
     },
     about: "حول",
     home: "الرئيسية",
