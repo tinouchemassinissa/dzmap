@@ -25,6 +25,9 @@ export const TRANSLATIONS = {
     streak: "Streak",
     gameOver: "Game Over",
     playAgain: "Play Again",
+    youWin: "You Win!",
+    backToMenu: "Back to Menu",
+    officialSource: "Official source",
     prompts: {
       reverse: "What wilaya is highlighted on the map?",
       study: "Study Guide Mode Active",
@@ -88,6 +91,9 @@ export const TRANSLATIONS = {
     streak: "Série",
     gameOver: "Fin de la partie",
     playAgain: "Rejouer",
+    youWin: "Victoire !",
+    backToMenu: "Retour au menu",
+    officialSource: "Source officielle",
     prompts: {
       reverse: "Quelle wilaya est en surbrillance ?",
       study: "Mode Guide d'Étude Actif",
@@ -151,6 +157,9 @@ export const TRANSLATIONS = {
     streak: "متتالية",
     gameOver: "انتهت اللعبة",
     playAgain: "العب مرة أخرى",
+    youWin: "لقد فزت!",
+    backToMenu: "العودة إلى القائمة",
+    officialSource: "المصدر الرسمي",
     prompts: {
       reverse: "ما هي الولاية المحددة على الخريطة؟",
       study: "وضع دليل الدراسة نشط",
