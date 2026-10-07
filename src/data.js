@@ -6,7 +6,7 @@ export const ALGERIA_ADMIN_META = {
   "full_autonomy": "2027-01-01",
   "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
   "ministry_source": "https://interieur.gov.dz/2025/12/18/le-ministre-de-linterieur-des-collectivites-locales-et-des-transports-presente-le-projet-de-loi-relatif-a-lorganisation-territoriale-du-pays-devant-la-commission-competente-du-conse/",
-  "boundary_source": "OpenStreetMap admin_level=4 via GeoAlgeria, retrieved 2026-06-21 and corrected through 2026-09-29",
+  "boundary_source": "OpenStreetMap admin_level=4 via GeoAlgeria; 69-feature 2026 boundary dataset",
   "boundary_license": "ODbL-1.0",
   "boundary_attribution": "© OpenStreetMap contributors"
 };
@@ -753,16 +753,16 @@ export const WILAYA_DATA = {
     "name_ar": "غرداية",
     "name_fr": "Ghardaïa",
     "capital": "Ghardaïa",
-    "region": "Central",
+    "region": "South",
     "created": 1984,
     "communes_count": 10,
     "dairas_count": 8,
     "mother_wilaya": null,
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 47, created under Algeria's 2026 territorial reform. It contains 10 communes.",
-    "fact_fr": "Wilaya n° 47, créée dans le cadre de la réforme territoriale algérienne de 2026. Elle compte 10 communes.",
-    "fact_ar": "الولاية رقم 47، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026، وتضم 10 بلدية.",
-    "fact_status": "official-reform-summary"
+    "fact": "Jewel of the M'zab Valley (UNESCO site), fascinating the world with its unique architectural layout and precise social organization across 5 Ksours.",
+    "fact_fr": "Joyau de la vallée du M'zab (site de l'UNESCO), fascinant le monde par son aménagement architectural unique et son organisation sociale précise à travers 5 ksour.",
+    "fact_ar": "جوهرة وادي ميزاب (تراث عالمي)، تبهر العالم بنظامها المعماري الفريد والتنظيم الاجتماعي الدقيق بقصورها الخمسة.",
+    "fact_status": "legacy-local-fact"
   },
   "Relizane": {
     "code": 48,
@@ -785,16 +785,16 @@ export const WILAYA_DATA = {
     "name_ar": "تيميمون",
     "name_fr": "Timimoun",
     "capital": "Timimoun",
-    "region": "Central",
+    "region": "South",
     "created": 2019,
     "communes_count": 10,
     "dairas_count": 4,
     "mother_wilaya": "Adrar",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 49, created under Algeria's 2026 territorial reform from territory previously administered by Adrar Wilaya. It contains 10 communes.",
-    "fact_fr": "Wilaya n° 49, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Adrar. Elle compte 10 communes.",
-    "fact_ar": "الولاية رقم 49، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Adrar، وتضم 10 بلدية.",
-    "fact_status": "official-reform-summary"
+    "fact": "The Red Oasis, pearl of the Gourara region, famous for its red clay Andalusian-style architecture and the Sboue festival.",
+    "fact_fr": "L'Oasis Rouge, perle de la région du Gourara, célèbre pour son architecture de style andalou en argile rouge et son festival du Sboue.",
+    "fact_ar": "الواحة الحمراء، لؤلؤة منطقة قورارة، تشتهر بعمارتها الطينية الأندلسية ومهرجان أسبوع المولد النبوي الشريف.",
+    "fact_status": "legacy-local-fact"
   },
   "Bordj Badji Mokhtar": {
     "code": 50,
@@ -929,16 +929,16 @@ export const WILAYA_DATA = {
     "name_ar": "المنيعة",
     "name_fr": "El Meniaa",
     "capital": "El Meniaa",
-    "region": "Central",
+    "region": "South",
     "created": 2019,
     "communes_count": 3,
     "dairas_count": 1,
     "mother_wilaya": "Ghardaïa",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 58, created under Algeria's 2026 territorial reform from territory previously administered by Ghardaïa Wilaya. It contains 3 communes.",
-    "fact_fr": "Wilaya n° 58, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Ghardaïa. Elle compte 3 communes.",
-    "fact_ar": "الولاية رقم 58، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Ghardaïa، وتضم 3 بلدية.",
-    "fact_status": "official-reform-summary"
+    "fact": "Also called El Goléa, a lush oasis with fresh water, beautifully dominated by a historical citadel on a mountain.",
+    "fact_fr": "Aussi appelée El Goléa, une oasis luxuriante d'eau douce, magnifiquement dominée par une citadelle historique sur une montagne.",
+    "fact_ar": "تسمى أيضاً القليعة، واحة غناء ذات مياه عذبة، يحتضن جبلها القلعة التاريخية الخلابة.",
+    "fact_status": "legacy-local-fact"
   },
   "Aflou": {
     "code": 59,
@@ -951,9 +951,9 @@ export const WILAYA_DATA = {
     "dairas_count": 5,
     "mother_wilaya": "Laghouat",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 59, created under Algeria's 2026 territorial reform from territory previously administered by Laghouat Wilaya. It contains 12 communes.",
-    "fact_fr": "Wilaya n° 59, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Laghouat. Elle compte 12 communes.",
-    "fact_ar": "الولاية رقم 59، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Laghouat، وتضم 12 بلدية.",
+    "fact": "Wilaya 59, created by Law 26-06 of 4 April 2026 from territory previously administered by Laghouat. It contains 12 communes.",
+    "fact_fr": "Wilaya n° 59, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Laghouat. Elle compte 12 communes.",
+    "fact_ar": "الولاية رقم 59، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية الأغواط، وتضم 12 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Barika": {
@@ -967,9 +967,9 @@ export const WILAYA_DATA = {
     "dairas_count": 3,
     "mother_wilaya": "Batna",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 60, created under Algeria's 2026 territorial reform from territory previously administered by Batna Wilaya. It contains 8 communes.",
-    "fact_fr": "Wilaya n° 60, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Batna. Elle compte 8 communes.",
-    "fact_ar": "الولاية رقم 60، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Batna، وتضم 8 بلدية.",
+    "fact": "Wilaya 60, created by Law 26-06 of 4 April 2026 from territory previously administered by Batna. It contains 8 communes.",
+    "fact_fr": "Wilaya n° 60, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Batna. Elle compte 8 communes.",
+    "fact_ar": "الولاية رقم 60، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية باتنة، وتضم 8 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "El Kantara": {
@@ -983,9 +983,9 @@ export const WILAYA_DATA = {
     "dairas_count": 3,
     "mother_wilaya": "Biskra",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 61, created under Algeria's 2026 territorial reform from territory previously administered by Biskra Wilaya. It contains 5 communes.",
-    "fact_fr": "Wilaya n° 61, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Biskra. Elle compte 5 communes.",
-    "fact_ar": "الولاية رقم 61، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Biskra، وتضم 5 بلدية.",
+    "fact": "Wilaya 61, created by Law 26-06 of 4 April 2026 from territory previously administered by Biskra. It contains 5 communes.",
+    "fact_fr": "Wilaya n° 61, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Biskra. Elle compte 5 communes.",
+    "fact_ar": "الولاية رقم 61، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية بسكرة، وتضم 5 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Bir El Ater": {
@@ -999,9 +999,9 @@ export const WILAYA_DATA = {
     "dairas_count": 2,
     "mother_wilaya": "Tébessa",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 62, created under Algeria's 2026 territorial reform from territory previously administered by Tébessa Wilaya. It contains 4 communes.",
-    "fact_fr": "Wilaya n° 62, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Tébessa. Elle compte 4 communes.",
-    "fact_ar": "الولاية رقم 62، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Tébessa، وتضم 4 بلدية.",
+    "fact": "Wilaya 62, created by Law 26-06 of 4 April 2026 from territory previously administered by Tébessa. It contains 4 communes.",
+    "fact_fr": "Wilaya n° 62, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Tébessa. Elle compte 4 communes.",
+    "fact_ar": "الولاية رقم 62، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية تبسة، وتضم 4 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "El Aricha": {
@@ -1015,9 +1015,9 @@ export const WILAYA_DATA = {
     "dairas_count": 2,
     "mother_wilaya": "Tlemcen",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 63, created under Algeria's 2026 territorial reform from territory previously administered by Tlemcen Wilaya. It contains 4 communes.",
-    "fact_fr": "Wilaya n° 63, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Tlemcen. Elle compte 4 communes.",
-    "fact_ar": "الولاية رقم 63، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Tlemcen، وتضم 4 بلدية.",
+    "fact": "Wilaya 63, created by Law 26-06 of 4 April 2026 from territory previously administered by Tlemcen. It contains 4 communes.",
+    "fact_fr": "Wilaya n° 63, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Tlemcen. Elle compte 4 communes.",
+    "fact_ar": "الولاية رقم 63، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية تلمسان، وتضم 4 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Ksar Chellala": {
@@ -1031,9 +1031,9 @@ export const WILAYA_DATA = {
     "dairas_count": 2,
     "mother_wilaya": "Tiaret",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 64, created under Algeria's 2026 territorial reform from territory previously administered by Tiaret Wilaya. It contains 6 communes.",
-    "fact_fr": "Wilaya n° 64, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Tiaret. Elle compte 6 communes.",
-    "fact_ar": "الولاية رقم 64، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Tiaret، وتضم 6 بلدية.",
+    "fact": "Wilaya 64, created by Law 26-06 of 4 April 2026 from territory previously administered by Tiaret. It contains 6 communes.",
+    "fact_fr": "Wilaya n° 64, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Tiaret. Elle compte 6 communes.",
+    "fact_ar": "الولاية رقم 64، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية تيارت، وتضم 6 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Aïn Ouessara": {
@@ -1047,9 +1047,9 @@ export const WILAYA_DATA = {
     "dairas_count": 4,
     "mother_wilaya": "Djelfa",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 65, created under Algeria's 2026 territorial reform from territory previously administered by Djelfa Wilaya. It contains 10 communes.",
-    "fact_fr": "Wilaya n° 65, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Djelfa. Elle compte 10 communes.",
-    "fact_ar": "الولاية رقم 65، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Djelfa، وتضم 10 بلدية.",
+    "fact": "Wilaya 65, created by Law 26-06 of 4 April 2026 from territory previously administered by Djelfa. It contains 10 communes.",
+    "fact_fr": "Wilaya n° 65, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Djelfa. Elle compte 10 communes.",
+    "fact_ar": "الولاية رقم 65، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية الجلفة، وتضم 10 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Messaad": {
@@ -1063,9 +1063,9 @@ export const WILAYA_DATA = {
     "dairas_count": 2,
     "mother_wilaya": "Djelfa",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 66, created under Algeria's 2026 territorial reform from territory previously administered by Djelfa Wilaya. It contains 8 communes.",
-    "fact_fr": "Wilaya n° 66, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Djelfa. Elle compte 8 communes.",
-    "fact_ar": "الولاية رقم 66، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Djelfa، وتضم 8 بلدية.",
+    "fact": "Wilaya 66, created by Law 26-06 of 4 April 2026 from territory previously administered by Djelfa. It contains 8 communes.",
+    "fact_fr": "Wilaya n° 66, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Djelfa. Elle compte 8 communes.",
+    "fact_ar": "الولاية رقم 66، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية الجلفة، وتضم 8 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Ksar El Boukhari": {
@@ -1079,9 +1079,9 @@ export const WILAYA_DATA = {
     "dairas_count": 6,
     "mother_wilaya": "Médéa",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 67, created under Algeria's 2026 territorial reform from territory previously administered by Médéa Wilaya. It contains 21 communes.",
-    "fact_fr": "Wilaya n° 67, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de Médéa. Elle compte 21 communes.",
-    "fact_ar": "الولاية رقم 67، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية Médéa، وتضم 21 بلدية.",
+    "fact": "Wilaya 67, created by Law 26-06 of 4 April 2026 from territory previously administered by Médéa. It contains 21 communes.",
+    "fact_fr": "Wilaya n° 67, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de Médéa. Elle compte 21 communes.",
+    "fact_ar": "الولاية رقم 67، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية المدية، وتضم 21 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "Bou Saâda": {
@@ -1095,9 +1095,9 @@ export const WILAYA_DATA = {
     "dairas_count": 8,
     "mother_wilaya": "M'Sila",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 68, created under Algeria's 2026 territorial reform from territory previously administered by M'Sila Wilaya. It contains 23 communes.",
-    "fact_fr": "Wilaya n° 68, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de M'Sila. Elle compte 23 communes.",
-    "fact_ar": "الولاية رقم 68، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية M'Sila، وتضم 23 بلدية.",
+    "fact": "Wilaya 68, created by Law 26-06 of 4 April 2026 from territory previously administered by M'Sila. It contains 23 communes.",
+    "fact_fr": "Wilaya n° 68, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de M'Sila. Elle compte 23 communes.",
+    "fact_ar": "الولاية رقم 68، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية المسيلة، وتضم 23 بلدية.",
     "fact_status": "official-reform-summary"
   },
   "El Abiodh Sidi Cheikh": {
@@ -1111,9 +1111,9 @@ export const WILAYA_DATA = {
     "dairas_count": 3,
     "mother_wilaya": "El Bayadh",
     "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
-    "fact": "Wilaya 69, created under Algeria's 2026 territorial reform from territory previously administered by El Bayadh Wilaya. It contains 7 communes.",
-    "fact_fr": "Wilaya n° 69, créée dans le cadre de la réforme territoriale algérienne de 2026 à partir d'un territoire auparavant administré par la wilaya de El Bayadh. Elle compte 7 communes.",
-    "fact_ar": "الولاية رقم 69، أُنشئت ضمن الإصلاح الإقليمي للجزائر سنة 2026 انطلاقاً من إقليم كان تابعاً لولاية El Bayadh، وتضم 7 بلدية.",
+    "fact": "Wilaya 69, created by Law 26-06 of 4 April 2026 from territory previously administered by El Bayadh. It contains 7 communes.",
+    "fact_fr": "Wilaya n° 69, créée par la loi 26-06 du 4 avril 2026 à partir d'un territoire auparavant administré par la wilaya de El Bayadh. Elle compte 7 communes.",
+    "fact_ar": "الولاية رقم 69، أُنشئت بموجب القانون 26-06 المؤرخ في 4 أفريل 2026 من إقليم كان تابعاً لولاية البيض، وتضم 7 بلدية.",
     "fact_status": "official-reform-summary"
   }
 };
