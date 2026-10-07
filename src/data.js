@@ -5,6 +5,7 @@ export const ALGERIA_ADMIN_META = {
   "transition_end": "2026-12-31",
   "full_autonomy": "2027-01-01",
   "official_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf",
+  "naming_source": "https://www.joradp.dz/FTP/jo-francais/2026/F2026040.pdf",
   "ministry_source": "https://interieur.gov.dz/2025/12/18/le-ministre-de-linterieur-des-collectivites-locales-et-des-transports-presente-le-projet-de-loi-relatif-a-lorganisation-territoriale-du-pays-devant-la-commission-competente-du-conse/",
   "boundary_source": "OpenStreetMap admin_level=4 via GeoAlgeria; 69-feature 2026 boundary dataset",
   "boundary_license": "ODbL-1.0",
