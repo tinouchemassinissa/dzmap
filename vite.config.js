@@ -2,26 +2,25 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,mp3}'],
+        cleanupOutdatedCaches: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,mp3,webmanifest}'],
         maximumFileSizeToCacheInBytes: 15000000,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/flagcdn\.com\/.*/i,
+            urlPattern: /^https:\/\/upload\.wikimedia\.org\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'flag-images-cache',
+              cacheName: 'wikimedia-assets',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 365
+                maxEntries: 24,
+                maxAgeSeconds: 60 * 60 * 24 * 90
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -29,13 +28,20 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/en\.wikipedia\.org\/api\/rest_v1\/.*/i,
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'wikipedia-api-cache',
+              cacheName: 'google-font-stylesheets'
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-font-files',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]

@@ -5,7 +5,8 @@ import confetti from 'canvas-confetti';
 import { db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { playCorrectSound, playIncorrectSound, playComboSound, playWinSound } from './audio';
-import { WILAYA_DATA } from './data';
+import { ALGERIA_ADMIN_META, WILAYA_DATA } from './data';
+import { calculatePoints, generateMultipleChoice, isAnswerCorrect, sanitizePlayerName } from './gameLogic';
 import { TRANSLATIONS } from './translations';
 import './index.css';
 
@@ -41,7 +42,11 @@ function App() {
   const [playerName, setPlayerName] = useState("");
   const [gameStarted, setGameStarted] = useState(false);
   const [shake, setShake] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('dzMapTheme');
+    if (saved) return saved !== 'light';
+    return !window.matchMedia('(prefers-color-scheme: light)').matches;
+  });
   const [showLabels, setShowLabels] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
@@ -59,6 +64,7 @@ function App() {
   const [targetWilaya, setTargetWilaya] = useState("");
   const [options, setOptions] = useState([]);
   const [triviaQuestion, setTriviaQuestion] = useState("");
+  const [triviaCorrectAnswer, setTriviaCorrectAnswer] = useState(null);
   
   const [guessedWilayas, setGuessedWilayas] = useState({});
   const [gameOver, setGameOver] = useState(false);
@@ -74,10 +80,13 @@ function App() {
   const [mapView, setMapView] = useState(DEFAULT_VIEW);
 
   const timerRef = useRef(null);
-  const audioRef = useRef(null);
-  const anthemRef = useRef(null);
+  const scoreRef = useRef(0);
 
   const fetchLeaderboard = async () => {
+    if (!db) {
+      setLeaderboard([]);
+      return;
+    }
     try {
       const q = query(collection(db, "algeria-map-leaderboard"), orderBy("score", "desc"), limit(5));
       const querySnapshot = await getDocs(q);
@@ -94,10 +103,16 @@ function App() {
   useEffect(() => {
     if (isDarkMode) {
       document.body.removeAttribute('data-theme');
+      localStorage.setItem('dzMapTheme', 'dark');
     } else {
       document.body.setAttribute('data-theme', 'light');
+      localStorage.setItem('dzMapTheme', 'light');
     }
   }, [isDarkMode]);
+
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
 
   useEffect(() => {
     // If the event fired before React loaded, it's saved here
@@ -137,7 +152,7 @@ function App() {
       if (timerRef.current) clearInterval(timerRef.current);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, [musicPlaying]);
+  }, []);
 
   useEffect(() => {
     if (score > highScore) {
@@ -153,7 +168,7 @@ function App() {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            triggerGameOver(0);
+            triggerGameOver(scoreRef.current);
             return 0;
           }
           return prev - 1;
@@ -177,7 +192,9 @@ function App() {
         const newBadges = [...unlockedBadges, badgeId];
         setUnlockedBadges(newBadges);
         localStorage.setItem("algeriaMapBadges", JSON.stringify(newBadges));
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.3 }, colors: ['#facc15'] });
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          confetti({ particleCount: 100, spread: 80, origin: { y: 0.3 }, colors: ['#facc15'] });
+        }
       }
     }
   };
@@ -200,10 +217,11 @@ function App() {
   };
 
   const startGame = () => {
-    const finalName = playerName.trim() || "Explorer";
+    const finalName = sanitizePlayerName(playerName);
     setPlayerName(finalName);
     setGameStarted(true);
     setScore(0);
+    scoreRef.current = 0;
     setStreak(0);
     setLives(3);
     setTimeLeft(60);
@@ -213,7 +231,7 @@ function App() {
     setMapView(DEFAULT_VIEW);
     pickNewTarget({});
     
-    // Play Yankee Doodle via audio element
+    // Start the local background music after the user gesture
     const bgMusic = document.getElementById('bg-music');
     if (bgMusic) {
       bgMusic.currentTime = 0;
@@ -222,11 +240,13 @@ function App() {
   };
 
   const saveToLeaderboard = async (finalScore) => {
-    if (finalScore > 0 && playerName) {
+    const cleanName = sanitizePlayerName(playerName);
+    const safeScore = Math.max(0, Math.min(50000, Math.round(Number(finalScore) || 0)));
+    if (safeScore > 0 && cleanName && db) {
       try {
         await addDoc(collection(db, "algeria-map-leaderboard"), {
-          name: playerName,
-          score: finalScore,
+          name: cleanName,
+          score: safeScore,
           mode: mode,
           date: new Date().toISOString()
         });
@@ -240,18 +260,6 @@ function App() {
   const triggerGameOver = (finalScore) => {
     setGameOver(true);
     saveToLeaderboard(finalScore);
-  };
-
-  const generateMultipleChoice = (correctAnswer, type) => {
-    const opts = new Set([correctAnswer]);
-    while(opts.size < 4) {
-      const randState = WILAYA_NAMES[Math.floor(Math.random() * WILAYA_NAMES.length)];
-      if (type === 'name') opts.add(randState);
-      else if (type === 'population') opts.add(WILAYA_DATA[randState].population);
-      else if (type === 'area') opts.add(WILAYA_DATA[randState].area);
-      else if (type === 'capital') opts.add(WILAYA_DATA[randState].capital);
-    }
-    return Array.from(opts).sort(() => Math.random() - 0.5);
   };
 
   const pickNewTarget = (currentGuessed) => {
@@ -278,69 +286,53 @@ function App() {
         anthemMusic.play().catch(e => console.log(e));
       }
       
-      const duration = 50 * 1000;
-      const animationEnd = Date.now() + duration;
-      const interval = setInterval(function() {
-        var timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-        var particleCount = 50 * (timeLeft / duration);
-        confetti({ startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
-      }, 250);
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const duration = reducedMotion ? 250 : 3500;
+      if (!reducedMotion) {
+        const animationEnd = Date.now() + duration;
+        const interval = setInterval(function() {
+          const remainingMs = animationEnd - Date.now();
+          if (remainingMs <= 0) return clearInterval(interval);
+          confetti({
+            startVelocity: 24,
+            spread: 360,
+            ticks: 50,
+            zIndex: 100,
+            particleCount: Math.max(8, Math.round(24 * (remainingMs / duration))),
+            origin: { x: Math.random(), y: Math.random() * 0.35 }
+          });
+        }, 260);
+      }
 
       setTimeout(() => {
-        triggerGameOver(score);
-      }, 50000);
+        triggerGameOver(scoreRef.current);
+      }, duration);
       return;
     }
     const randomState = remaining[Math.floor(Math.random() * remaining.length)];
     setTargetWilaya(randomState);
 
     if (mode === 'REVERSE') {
-      setOptions(generateMultipleChoice(randomState, 'name'));
+      setOptions(generateMultipleChoice(randomState, 'name', WILAYA_DATA, WILAYA_NAMES));
     } else if (mode === 'TRIVIA') {
       const types = ['capital', 'region'];
       const questionType = types[Math.floor(Math.random() * types.length)];
+      const correctValue = WILAYA_DATA[randomState][questionType];
       setTriviaQuestion(questionType);
-      setOptions(generateMultipleChoice(WILAYA_DATA[randomState][questionType], questionType));
+      setTriviaCorrectAnswer(correctValue);
+      setOptions(generateMultipleChoice(correctValue, questionType, WILAYA_DATA, WILAYA_NAMES));
     }
   };
 
   const handleGuess = (guess) => {
     if (gameOver || currentFact || !gameStarted) return;
-    
-    let isCorrect = false;
-    
-    if (mode === 'REVERSE' || mode === 'TRIVIA') {
-      const isCorrect = (guess === targetWilaya);
-      processAnswer(isCorrect, targetWilaya, null);
-    } else {
-      processAnswer(guess === targetWilaya, targetWilaya, null);
-    }
-  };
-
-  const handleMapClick = (geo, evt) => {
-    if (gameOver || currentFact || !gameStarted) return;
-    const stateName = geo.properties.name;
-
-    if (mode === 'STUDY') {
-      if (WILAYA_NAMES.includes(stateName)) {
-        setCurrentFact({
-          state: stateName,
-          text: WILAYA_DATA[stateName].fact,
-          pointsEarned: 0
-        });
-      }
-      return;
-    }
-
-    if (mode === 'REVERSE' || mode === 'TRIVIA') return; // In these modes, use buttons
-    
-    if (guessedWilayas[stateName] === "correct" || !WILAYA_NAMES.includes(stateName)) return;
-
-    // Pass the click coordinates for the floating combo text
-    handleGuess(stateName, evt);
+    const correct = isAnswerCorrect({
+      mode,
+      guess,
+      targetWilaya,
+      triviaCorrectAnswer,
+    });
+    processAnswer(correct, targetWilaya, null);
   };
 
   const handleGuessMap = (guess, evt) => {
@@ -356,11 +348,17 @@ function App() {
       if (WILAYA_NAMES.includes(stateName)) {
         setTargetWilaya(stateName);
         
+        const usesOfficialReformSource = WILAYA_DATA[stateName]?.created === 2026;
+        const wikiLang = lang === 'ar' ? 'ar' : lang === 'fr' ? 'fr' : 'en';
         setStudyData({
            stateName,
            extract: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
            thumbnail: null,
-           url: `https://en.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
+           sourceType: usesOfficialReformSource ? 'official' : 'wikipedia',
+           factStatus: WILAYA_DATA[stateName]?.fact_status,
+           url: usesOfficialReformSource
+             ? ALGERIA_ADMIN_META.naming_source
+             : `https://${wikiLang}.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
         });
       }
       return;
@@ -383,18 +381,29 @@ function App() {
           setMapView(REGION_VIEWS[region]);
         }
         
-        const regionLabelAr = "الولايات في هذه المنطقة:";
-        const regionLabelFr = "Wilayas dans cette région :";
-        const regionLabelEn = "Wilayas in this region:";
-        const extractText = lang === 'ar' ? `${regionLabelAr} ${regionStates.map(w => WILAYA_DATA[w]?.name_ar || w).join('، ')}` :
-                            lang === 'fr' ? `${regionLabelFr} ${regionStates.join(', ')}` :
-                            `${regionLabelEn} ${regionStates.join(', ')}`;
+        const regionLabelAr = "الولايات في هذه المجموعة:";
+        const regionLabelFr = "Wilayas dans ce groupe :";
+        const regionLabelEn = "Wilayas in this group:";
+        const disclaimer = lang === 'ar'
+          ? "هذه مجموعة تعليمية عامة داخل التطبيق وليست تقسيماً إدارياً رسمياً للجزائر."
+          : lang === 'fr'
+            ? "Il s'agit d'un regroupement pédagogique de l'application, et non d'une division administrative officielle de l'Algérie."
+            : "This is a broad learning group used by the app, not an official Algerian administrative division.";
+        const memberNames = regionStates.map((wilaya) => getWilayaDisplayName(wilaya));
+        const extractText = lang === 'ar'
+          ? `${regionLabelAr} ${memberNames.join('، ')}`
+          : lang === 'fr'
+            ? `${regionLabelFr} ${memberNames.join(', ')}`
+            : `${regionLabelEn} ${memberNames.join(', ')}`;
+        const regionTitle = t.regions[region] || region;
         
         setStudyData({
-          stateName: `${region} Region`,
-          extract: extractText,
+          stateName: `${regionTitle} — ${lang === 'ar' ? 'مجموعة تعليمية' : lang === 'fr' ? 'groupe pédagogique' : 'Learning Region'}`,
+          extract: `${extractText} — ${disclaimer}`,
           thumbnail: null,
-          url: `https://en.wikipedia.org/wiki/Geography_of_Algeria`
+          sourceType: 'learning-region',
+          factStatus: 'learning-group',
+          url: ALGERIA_ADMIN_META.ministry_source
         });
       }
       return;
@@ -416,8 +425,9 @@ function App() {
       const newStreak = streak + 1;
       setStreak(newStreak);
       
-      const points = 10 * newStreak;
-      const newScore = score + points;
+      const points = calculatePoints(newStreak);
+      const newScore = scoreRef.current + points;
+      scoreRef.current = newScore;
       setScore(newScore);
       if (mode === 'TIME_ATTACK') setTimeLeft(prev => prev + 2 + Math.floor(newStreak / 3));
       
@@ -436,41 +446,52 @@ function App() {
         setTimeout(() => setFloatingTexts(prev => prev.filter(f => f.id !== id)), 1500);
       }
       
-      confetti({
-        particleCount: 50 + (newStreak * 10),
-        spread: 60,
-        origin: { y: 0.8 },
-        colors: ['#22c55e', '#ffffff', '#3b82f6', '#facc15']
-      });
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        confetti({
+          particleCount: Math.min(100, 36 + (newStreak * 6)),
+          spread: 60,
+          origin: { y: 0.8 },
+          colors: ['#22c55e', '#ffffff', '#3b82f6', '#facc15']
+        });
+      }
 
-      setCurrentFact({
-        state: stateName,
-        text: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
-        pointsEarned: points
-      });
+      if (mode === 'TIME_ATTACK') {
+        setCurrentFact(null);
+        setTimeout(() => pickNewTarget(newGuessed), 120);
+      } else {
+        setCurrentFact({
+          state: stateName,
+          text: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
+          pointsEarned: points
+        });
+      }
 
     } else {
       playIncorrectSound();
       setStreak(0);
-      setGuessedWilayas(prev => ({ ...prev, [stateName]: "incorrect" }));
+      if (mode !== 'REVERSE' && mode !== 'TRIVIA') {
+        setGuessedWilayas(prev => ({ ...prev, [stateName]: "incorrect" }));
+      }
       
       if (mode === 'TIME_ATTACK') {
         setTimeLeft(prev => Math.max(0, prev - 5));
       } else {
         setLives(prev => {
           const newLives = prev - 1;
-          if (newLives <= 0) triggerGameOver(score);
+          if (newLives <= 0) triggerGameOver(scoreRef.current);
           return newLives;
         });
       }
 
-      setTimeout(() => {
-        setGuessedWilayas(prev => {
-          const updated = { ...prev };
-          if (updated[stateName] === "incorrect") delete updated[stateName];
-          return updated;
-        });
-      }, 800);
+      if (mode !== 'REVERSE' && mode !== 'TRIVIA') {
+        setTimeout(() => {
+          setGuessedWilayas(prev => {
+            const updated = { ...prev };
+            if (updated[stateName] === "incorrect") delete updated[stateName];
+            return updated;
+          });
+        }, 800);
+      }
     }
   };
 
@@ -493,16 +514,16 @@ function App() {
 
   const getWilayaDisplayName = (wilayaName) => {
     if (!wilayaName || !WILAYA_DATA[wilayaName]) return wilayaName;
-    return lang === 'ar' && WILAYA_DATA[wilayaName].name_ar 
-      ? WILAYA_DATA[wilayaName].name_ar 
-      : wilayaName;
+    if (lang === 'ar' && WILAYA_DATA[wilayaName].name_ar) return WILAYA_DATA[wilayaName].name_ar;
+    if (lang === 'fr' && WILAYA_DATA[wilayaName].name_fr) return WILAYA_DATA[wilayaName].name_fr;
+    return wilayaName;
   };
 
   return (
-    <div className={`game-wrapper ${shake ? 'combo-shake' : ''}`} style={{ width: '100vw', height: '100vh' }}>
+    <div className={`game-wrapper ${shake ? 'combo-shake' : ''} ${lang === 'ar' ? 'rtl-layout' : ''}`}>
       {/* Removed Audio Elements from here since they exist in index.html */}
       {!gameStarted ? (
-        <div className="game-container" style={{ justifyContent: 'center' }}>
+        <div className="game-container home-screen">
           <button className="icon-btn about-btn" onClick={() => setShowAbout(true)} title="About Algeria Wilaya Explorer" style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 100 }}>
             ℹ️
           </button>
@@ -512,7 +533,7 @@ function App() {
           <button className="icon-btn music-toggle" onClick={toggleMusic} title="Toggle Music">
             {musicPlaying ? "🔊" : "🔇"}
           </button>
-          <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '5px', zIndex: 100 }}>
+          <div className="language-switcher">
             <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             <button className={`lang-btn ${lang === 'fr' ? 'active' : ''}`} onClick={() => setLang('fr')}>FR</button>
             <button className={`lang-btn ${lang === 'ar' ? 'active' : ''}`} onClick={() => setLang('ar')}>AR</button>
@@ -526,7 +547,7 @@ function App() {
                   <div><strong>Author:</strong> Massinissa TINOUCHE</div>
                   <div><strong>Address:</strong> Algeria</div>
                   <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', borderLeft: '4px solid var(--accent-blue)' }}>
-                    <strong>Algeria Wilaya Explorer</strong> is an interactive educational PWA designed to help students learn about the 58 Algerian wilayas, their capitals, and geographic regions. Play offline, earn badges, and compete on the global leaderboard!
+                    <strong>Algeria Wilaya Explorer</strong> is an interactive educational PWA designed to help students learn about Algeria's {ALGERIA_ADMIN_META.official_wilaya_count} current wilayas, their capitals, and broad learning regions. The current legal structure contains {ALGERIA_ADMIN_META.official_wilaya_count} wilayas and {ALGERIA_ADMIN_META.official_commune_count} communes; the 2026 transition of responsibilities continues through 31 December 2026. Play offline, earn badges, and compete on the global leaderboard!
                   </div>
                 </div>
                 <button className="btn-primary" onClick={() => setShowAbout(false)} style={{ marginTop: '2rem' }}>
@@ -553,8 +574,8 @@ function App() {
             </div>
           )}
 
-        <div className="glass-panel modal">
-          <div className="mascot"><img src="/pwa-192x192.png" alt="Icon" width="48" height="48" style={{ borderRadius: '50%' }} /></div>
+        <main className="glass-panel home-panel">
+          <div className="mascot"><img src="/pwa-512x512.png" alt="Icon" width="48" height="48" style={{ borderRadius: '50%' }} /></div>
           <h1 className="title">{t.title}</h1>
           
           <input 
@@ -568,14 +589,16 @@ function App() {
           <h3 style={{ marginTop: '0.5rem' }}>{t.selectGameMode}</h3>
           <div className="mode-grid">
             {Object.values(GAME_MODES).map(m => (
-              <div 
-                key={m.id} 
+              <button
+                type="button"
+                key={m.id}
                 className={`mode-card ${mode === m.id ? 'active' : ''}`}
                 onClick={() => setMode(m.id)}
+                aria-pressed={mode === m.id}
               >
                 <div className="mode-title">{t.modes[m.id]}</div>
                 <div className="mode-desc">{t.modeDescriptions[m.id]}</div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -587,6 +610,9 @@ function App() {
             <button className="btn-primary" style={{ background: '#10b981' }} onClick={handleInstallClick}>
               {t.installApp}
             </button>
+          </div>
+          <div className="admin-update-note">
+            <strong>2026 administrative update:</strong> {ALGERIA_ADMIN_META.official_wilaya_count} wilayas and {ALGERIA_ADMIN_META.official_commune_count} communes under Law 26-06. New-wilaya responsibilities transition through 31 Dec 2026.
           </div>
 
           <div className="badges-container">
@@ -608,29 +634,37 @@ function App() {
               ))}
             </div>
           )}
-        </div>
+        </main>
       </div>
       ) : (
       <div className={`game-container ${lang === 'ar' ? 'rtl-layout' : ''}`}>
-        <button className="icon-btn home-btn" onClick={() => setGameStarted(false)} title="Back to Menu">
+        <button className="icon-btn home-btn" onClick={() => setGameStarted(false)} title={t.backToMenu} aria-label={t.backToMenu}>
           🏠
         </button>
-        <button className="icon-btn music-toggle" onClick={toggleMusic} title="Toggle Music">
+        <button
+          className="icon-btn theme-toggle"
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          title={isDarkMode ? "Light theme" : "Dark theme"}
+          aria-label={isDarkMode ? "Switch to light theme" : "Switch to dark theme"}
+        >
+          {isDarkMode ? "☀️" : "🌙"}
+        </button>
+        <button className="icon-btn music-toggle" onClick={toggleMusic} title="Toggle Music" aria-pressed={musicPlaying}>
           {musicPlaying ? "🔊" : "🔇"}
         </button>
         {mode === 'STUDY' && (
-          <button className="icon-btn" onClick={() => setShowLabels(!showLabels)} title="Toggle Labels" style={{ position: 'absolute', top: '20px', left: '120px', zIndex: 100 }}>
+          <button className="icon-btn labels-toggle" onClick={() => setShowLabels(!showLabels)} title="Toggle Labels" aria-pressed={showLabels}>
             🏷️
           </button>
         )}
-        <div style={{ position: 'absolute', top: '20px', right: '70px', display: 'flex', gap: '5px', zIndex: 100 }}>
+        <div className="language-switcher">
             <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
             <button className={`lang-btn ${lang === 'fr' ? 'active' : ''}`} onClick={() => setLang('fr')}>FR</button>
             <button className={`lang-btn ${lang === 'ar' ? 'active' : ''}`} onClick={() => setLang('ar')}>AR</button>
         </div>
       <div className="header">
         <div className="title-container">
-          <span className="mascot"><img src="/pwa-192x192.png" alt="Icon" width="40" height="40" style={{ borderRadius: '50%' }} /></span>
+          <span className="mascot"><img src="/pwa-512x512.png" alt="Icon" width="40" height="40" style={{ borderRadius: '50%' }} /></span>
           <h1 className="title" style={{ fontSize: '2.5rem' }}>
             {playerName === 'Explorer' ? t.explorersChallenge : `${playerName}'s Challenge!`}
           </h1>
@@ -679,7 +713,7 @@ function App() {
               <image href="https://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Algeria.svg" width="800" height="600" preserveAspectRatio="xMidYMid slice" />
             </pattern>
           </defs>
-          <ZoomableGroup className="rsm-zoomable-group" zoom={mapView.zoom} center={mapView.center}>
+          <ZoomableGroup className="rsm-zoomable-group" zoom={mapView.zoom} center={mapView.center} filterZoomEvent={() => false}>
             <Geographies geography={geoUrl}>
               {({ geographies }) => (
                 <g className={shake ? "map-glow" : ""}>
@@ -716,7 +750,7 @@ function App() {
                       className = "state-path win-animation";
                     }
 
-                    if (Object.keys(guessedWilayas).filter(k => guessedWilayas[k] === "correct").length === 58) {
+                    if (Object.keys(guessedWilayas).filter(k => guessedWilayas[k] === "correct").length === WILAYA_NAMES.length) {
                       className += " win-flag";
                     }
 
@@ -726,6 +760,15 @@ function App() {
                         geography={geo}
                         className={className}
                         onClick={(evt) => handleMapClickFinal(geo, evt)}
+                        onKeyDown={(evt) => {
+                          if (evt.key === 'Enter' || evt.key === ' ') {
+                            evt.preventDefault();
+                            handleMapClickFinal(geo, evt);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${getWilayaDisplayName(stateName)} wilaya`}
                         style={{
                           default: { outline: "none" },
                           hover: { outline: "none" },
@@ -769,7 +812,11 @@ function App() {
         <div className="options-grid">
           {options.map((opt, i) => (
             <button key={i} className="option-btn" onClick={() => handleGuess(opt)}>
-              {mode === 'REVERSE' ? getWilayaDisplayName(opt) : opt}
+              {mode === 'REVERSE'
+                ? getWilayaDisplayName(opt)
+                : triviaQuestion === 'region'
+                  ? (t.regions[opt] || opt)
+                  : opt}
             </button>
           ))}
         </div>
@@ -810,11 +857,11 @@ function App() {
                   setGuessedWilayas({});
                   setMapView(DEFAULT_VIEW);
                 }
-              }} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>✖</button>
+              }} style={{ background: 'none', border: 'none', color: 'var(--text-main)', fontSize: '2rem', cursor: 'pointer' }}>✖</button>
             </div>
             
             {studyData.loading ? (
-              <div style={{ padding: '3rem', color: '#94a3b8' }}>Fetching official Wikipedia records... 📚</div>
+              <div style={{ padding: '3rem', color: '#94a3b8' }}>Loading learning information... 📚</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', textAlign: 'left' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
@@ -832,10 +879,19 @@ function App() {
                 <div className="fact-box" style={{ fontSize: mode === 'REGIONS' ? '0.9rem' : '1.1rem', lineHeight: mode === 'REGIONS' ? '1.4' : '1.6', maxHeight: '30vh', overflowY: 'auto' }}>
                   {mode !== 'REGIONS' && WILAYA_DATA[studyData.stateName] ? (lang === 'ar' && WILAYA_DATA[studyData.stateName]?.fact_ar ? WILAYA_DATA[studyData.stateName].fact_ar : lang === 'fr' && WILAYA_DATA[studyData.stateName]?.fact_fr ? WILAYA_DATA[studyData.stateName].fact_fr : studyData.extract) : studyData.extract}
                 </div>
+                {studyData.factStatus === 'legacy-local-fact' && (
+                  <div className="fact-source-status">
+                    {lang === 'ar'
+                      ? 'معلومة تعليمية قديمة داخل التطبيق؛ مراجعة المصدر التفصيلية ما زالت مطلوبة.'
+                      : lang === 'fr'
+                        ? 'Fait pédagogique hérité : une vérification source par source reste à faire.'
+                        : 'Legacy learning fact: source-by-source verification is still pending.'}
+                  </div>
+                )}
                 
                 {studyData.url && (
                   <a href={studyData.url} target="_blank" rel="noreferrer" className="btn-primary" style={{ textDecoration: 'none', textAlign: 'center', background: '#3b82f6', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '1.2rem' }}>📖</span> {t.readMoreWiki}
+                    <span style={{ fontSize: '1.2rem' }}>📖</span> {studyData.sourceType === 'official' || studyData.sourceType === 'learning-region' ? t.officialSource : t.readMoreWiki}
                   </a>
                 )}
               </div>
@@ -849,7 +905,7 @@ function App() {
           <div className="glass-panel modal">
             <div className="mascot">{(mode === 'TIME_ATTACK' ? timeLeft <= 0 : lives <= 0) ? "😢" : "🏆"}</div>
             <h2 className="title" style={{ fontSize: '3.5rem' }}>
-              {(mode === 'TIME_ATTACK' ? timeLeft <= 0 : lives <= 0) ? "Game Over" : "You Win!"}
+              {(mode === 'TIME_ATTACK' ? timeLeft <= 0 : lives <= 0) ? t.gameOver : t.youWin}
             </h2>
             <div className="stat-box" style={{ margin: '1rem 0' }}>
               <span className="stat-label">{t.finalScore}</span>
@@ -869,7 +925,7 @@ function App() {
             )}
 
             <button className="btn-primary" onClick={() => setGameStarted(false)}>
-              Back to Menu ↩️
+              {t.backToMenu} ↩️
             </button>
           </div>
         </div>

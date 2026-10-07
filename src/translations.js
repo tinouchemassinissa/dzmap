@@ -1,7 +1,7 @@
 export const TRANSLATIONS = {
   en: {
     title: "Algeria Wilaya Explorer",
-    subtitle: "Learn the 58 Wilayas of Algeria",
+    subtitle: "Learn the 69 Wilayas of Algeria",
     letsPlay: "Let's Play! 🚀",
     modes: {
       CLASSIC: "Classic Mode",
@@ -17,7 +17,7 @@ export const TRANSLATIONS = {
       REVERSE: "We highlight the wilaya, you guess the name.",
       TRIVIA: "Test your deep knowledge of Algerian wilayas.",
       STUDY: "Click around the map to learn facts and capitals.",
-      REGIONS: "Explore the different geographic regions."
+      REGIONS: "Explore broad learning regions (not an official administrative tier)."
     },
     about: "About",
     home: "Home",
@@ -25,6 +25,9 @@ export const TRANSLATIONS = {
     streak: "Streak",
     gameOver: "Game Over",
     playAgain: "Play Again",
+    youWin: "You Win!",
+    backToMenu: "Back to Menu",
+    officialSource: "Official source",
     prompts: {
       reverse: "What wilaya is highlighted on the map?",
       study: "Study Guide Mode Active",
@@ -64,7 +67,7 @@ export const TRANSLATIONS = {
   },
   fr: {
     title: "Explorateur des Wilayas d'Algérie",
-    subtitle: "Apprenez les 58 Wilayas d'Algérie",
+    subtitle: "Apprenez les 69 Wilayas d'Algérie",
     letsPlay: "Jouer ! 🚀",
     modes: {
       CLASSIC: "Mode Classique",
@@ -80,7 +83,7 @@ export const TRANSLATIONS = {
       REVERSE: "Nous surlignons, vous devinez le nom.",
       TRIVIA: "Testez vos connaissances sur les wilayas.",
       STUDY: "Cliquez sur la carte pour apprendre.",
-      REGIONS: "Explorez les différentes régions géographiques."
+      REGIONS: "Explorez de grands ensembles pédagogiques (non administratifs)."
     },
     about: "À propos",
     home: "Accueil",
@@ -88,6 +91,9 @@ export const TRANSLATIONS = {
     streak: "Série",
     gameOver: "Fin de la partie",
     playAgain: "Rejouer",
+    youWin: "Victoire !",
+    backToMenu: "Retour au menu",
+    officialSource: "Source officielle",
     prompts: {
       reverse: "Quelle wilaya est en surbrillance ?",
       study: "Mode Guide d'Étude Actif",
@@ -127,7 +133,7 @@ export const TRANSLATIONS = {
   },
   ar: {
     title: "مستكشف ولايات الجزائر",
-    subtitle: "تعلم 58 ولاية جزائرية",
+    subtitle: "تعلم 69 ولاية جزائرية",
     letsPlay: "العب الآن! 🚀",
     modes: {
       CLASSIC: "الوضع الكلاسيكي",
@@ -143,7 +149,7 @@ export const TRANSLATIONS = {
       REVERSE: "نحن نحدد الولاية، وأنت تخمن الاسم.",
       TRIVIA: "اختبر معرفتك العميقة بولايات الجزائر.",
       STUDY: "انقر على الخريطة لتعلم الحقائق والعواصم.",
-      REGIONS: "استكشف المناطق الجغرافية المختلفة."
+      REGIONS: "استكشف مجموعات جغرافية تعليمية عامة وليست تقسيماً إدارياً رسمياً."
     },
     about: "حول",
     home: "الرئيسية",
@@ -151,6 +157,9 @@ export const TRANSLATIONS = {
     streak: "متتالية",
     gameOver: "انتهت اللعبة",
     playAgain: "العب مرة أخرى",
+    youWin: "لقد فزت!",
+    backToMenu: "العودة إلى القائمة",
+    officialSource: "المصدر الرسمي",
     prompts: {
       reverse: "ما هي الولاية المحددة على الخريطة؟",
       study: "وضع دليل الدراسة نشط",

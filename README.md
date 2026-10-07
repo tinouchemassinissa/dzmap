@@ -1,87 +1,138 @@
-<div align="center">
-  <img src="public/pwa-192x192.png" alt="Algeria Wilaya Explorer Icon" width="150" style="border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3);" />
-  
-  # 🇩🇿 Algeria Wilaya Explorer
+# 🇩🇿 Algeria Wilaya Explorer
 
-  **An interactive, offline-capable educational game designed to make learning Algerian Geography fun for kids and adults alike!**
+Interactive educational PWA for learning Algeria's current **69-wilaya** territorial structure, wilaya names, capitals, broad learning regions, and selected geographic/cultural facts.
 
-  [![Live Demo](https://img.shields.io/badge/Play_Now-Live_Demo-success?style=for-the-badge&logo=vercel)](https://dzmap.vercel.app/)
-  [![PWA Ready](https://img.shields.io/badge/PWA-Ready-blue?style=for-the-badge)](https://dzmap.vercel.app/)
-  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)]()
-  [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)]()
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-</div>
+**Live app:** https://algeria-map-game-olive.vercel.app
 
----
+## Administrative baseline
 
-<p align="center">
-  <img src="public/screenshots/gameplay.png" alt="Gameplay Screenshot" width="800" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.4);" />
-</p>
+DZMap follows **Law No. 26-06 of 4 April 2026**, published in the Algerian Official Journal No. 25 on 5 April 2026.
 
-## 🌟 Features
+- **69 wilayas**
+- **1,541 communes**
+- 11 wilayas created in the 2026 reform: Aflou, Barika, El Kantara, Bir El Ater, El Aricha, Ksar Chellala, Aïn Ouessara, Messaad, Ksar El Boukhari, Bou Saâda, and El Abiodh Sidi Cheikh
+- transfer of responsibilities from mother wilayas continues through **31 December 2026**
+- full operational transition is documented for **1 January 2027**
 
-- **🎮 6 Interactive Game Modes:**
-  - **Classic:** Find the highlighted wilaya on the map.
-  - **Reverse:** The map highlights a wilaya, and you must pick its name from a list.
-  - **Capitals:** Identify the wilaya based on its capital city name.
-  - **Trivia:** Answer a fun geographical, historical, or cultural fact to find the wilaya!
-  - **Region Explorer:** Group wilayas by geographical regions (North, South, East, West, Central, Highlands, Tell, Sahara).
-  - **Study Guide:** Relax, click around the map, and learn detailed facts, capitals, and read Wikipedia summaries about each wilaya at your own pace.
+See [DATA_SOURCES.md](DATA_SOURCES.md) for legal references, map provenance, and licensing.
 
-- **🌐 Multi-Language Support:** Fully translated into **English**, **French**, and **Arabic** (including right-to-left layout alignment).
-- **🌍 Global Leaderboard:** Compete with friends and family! Top scores are synchronized in real-time via Firebase Firestore.
-- **📲 Progressive Web App (PWA):** Install it directly to your iOS or Android home screen. Fully playable **offline** without an internet connection!
-- **🏅 Achievement Badges:** Unlock special badges for mastering different modes, answering trivia, and achieving high streaks.
-- **🎵 Music & Audio:** Features subtle, relaxing background music, victory chimes, and the Algerian National Anthem!
-- **🎨 Modern UI/UX:** Stunning glassmorphism design, colorful SVGs, fluid zoom, and satisfying victory animations.
+## Game modes
 
-## 🛠️ Tech Stack
+- **Classic** — find the prompted wilaya on the map.
+- **Time Attack** — find as many wilayas as possible before time expires; correct answers immediately advance to the next prompt.
+- **Reverse** — identify the wilaya highlighted on the map.
+- **Trivia** — answer capital or broad-learning-region questions about the highlighted wilaya.
+- **Study Guide** — click wilayas and learn without score pressure.
+- **Region Explorer** — explore broad North / South / East / West / Central learning groups.
 
-- **Frontend:** [React.js](https://reactjs.org/), [Vite](https://vitejs.dev/)
-- **Styling:** Vanilla CSS3 with Modern Glassmorphism & Animations
-- **Map Rendering:** `react-simple-maps`, `d3-geo`, TopoJSON (Custom tailored Algerian SVG Maps)
-- **Backend/Database:** Firebase Firestore (for Global Leaderboard)
-- **PWA Capabilities:** `vite-plugin-pwa`, Workbox (offline caching and manifest generation)
-- **Wikipedia Integration:** Fetches real-time educational facts from the official Wikipedia API.
+> The broad learning regions are an app teaching aid, **not an official administrative tier**.
 
-## 🚀 Getting Started Locally
+## Languages
 
-If you want to run this project on your own machine, contribute, or modify the maps:
+- English
+- French
+- Arabic, including RTL gameplay layout
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/tinouchemassinissa/dzmap.git
-   cd dzmap
-   ```
+## Reliability improvements
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+The current app includes:
 
-3. **Set up Firebase (Optional for Leaderboard):**
-   - Create a project on [Firebase Console](https://console.firebase.google.com/).
-   - Add a Web App and copy the config.
-   - Replace the configuration in `src/firebase.js`.
+- 69-feature 2026 wilaya map
+- exact 69/1,541 administrative metadata
+- fixed Trivia answer validation
+- fixed Trivia region-option freeze
+- fixed Time Attack score preservation
+- Time Attack no longer pauses for a fact card after every correct answer
+- short, reduced-motion-aware victory sequence
+- keyboard-operable wilaya map
+- browser zoom enabled
+- responsive desktop / Chromebook / tablet / phone layout
+- natural page scrolling and protected map height
+- persistent Dark / Light theme
+- optional Firebase configuration: the learning app still runs if Firebase is not configured
+- constrained Firestore leaderboard rules stored in the repository
+- restored PWA/service-worker behavior and offline caching
+- automated data-integrity, PWA, and game-logic tests
+- GitHub Actions CI for install, lint, test, and production build
 
-4. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+## Local development
 
-5. **Build for production:**
-   ```bash
-   npm run build
-   ```
+```bash
+git clone https://github.com/tinouchemassinissa/dzmap.git
+cd dzmap
+npm ci
+npm run dev
+```
 
-## 🤝 Contributing
+Verification:
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/tinouchemassinissa/dzmap/issues).
+```bash
+npm run lint
+npm test
+npm run build
+```
 
-## 👨‍💻 Author
+## Optional Firebase leaderboard
 
-Created with passion by **Massinissa TINOUCHE**  
-📍 San Jose, CA USA
+Copy `.env.example` to `.env.local` and provide your Firebase web-app values.
 
----
-*If you like this project and found it useful for learning, feel free to give it a ⭐ on GitHub!*
+```text
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+Firebase is optional for local learning/gameplay. If it is absent, the public leaderboard is simply unavailable.
+
+The repository contains `firestore.rules` and `firebase.json`. Vercel deploys the web app, but **Vercel does not deploy Firestore rules**. Deploy them separately from an authenticated Firebase environment:
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+Client-side rules limit obvious abuse, but a completely trusted competitive leaderboard would require server-side or attested score verification.
+
+## PWA / offline
+
+The map, application bundle, local audio, and other core assets are precached. External fonts and the Wikimedia Algeria flag asset are runtime-cached after successful retrieval.
+
+The public leaderboard and external reference links require a network connection.
+
+## Data and map licensing
+
+Legal administrative counts and names are grounded in Algerian official sources. The 69 wilaya boundary polygons are derived from OpenStreetMap administrative relations via the GeoAlgeria dataset and are covered by **ODbL 1.0**.
+
+**© OpenStreetMap contributors**
+
+See [DATA_SOURCES.md](DATA_SOURCES.md) for full attribution and provenance.
+
+## Project structure
+
+```text
+src/
+  App.jsx
+  audio.js
+  data.js
+  firebase.js
+  gameLogic.js
+  translations.js
+  game/
+    adminData.test.mjs
+    gameLogic.test.mjs
+    pwa.test.mjs
+public/
+  algeria.json
+  bg_music_v2.mp3
+  dz_anthem_v2.mp3
+  manifest.webmanifest
+firestore.rules
+firebase.json
+DATA_SOURCES.md
+```
+
+## License
+
+Application code is MIT. Refer to [DATA_SOURCES.md](DATA_SOURCES.md) for third-party data licensing and attribution.

@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/pwa-192x192.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/jpeg" href="/pwa-512x512.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f172a" />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" href="/pwa-512x512.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Algeria Wilaya Explorer</title>
     <script>
@@ -14,19 +14,6 @@
         e.preventDefault();
         window.globalInstallPrompt = e;
       });
-      // Force kill the stubborn PWA cache that holds Yankee Doodle
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister().then(function(boolean) {
-              if (boolean) {
-                console.log('Successfully unregistered old service worker!');
-                window.location.reload();
-              }
-            });
-          }
-        });
-      }
     </script>
   </head>
   <body>
