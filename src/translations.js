@@ -1,7 +1,7 @@
 export const TRANSLATIONS = {
   en: {
     title: "Algeria Wilaya Explorer",
-    subtitle: "Learn the 58 Wilayas of Algeria",
+    subtitle: "Learn the 69 Wilayas of Algeria",
     letsPlay: "Let's Play! 🚀",
     modes: {
       CLASSIC: "Classic Mode",
@@ -64,7 +64,7 @@ export const TRANSLATIONS = {
   },
   fr: {
     title: "Explorateur des Wilayas d'Algérie",
-    subtitle: "Apprenez les 58 Wilayas d'Algérie",
+    subtitle: "Apprenez les 69 Wilayas d'Algérie",
     letsPlay: "Jouer ! 🚀",
     modes: {
       CLASSIC: "Mode Classique",
@@ -127,7 +127,7 @@ export const TRANSLATIONS = {
   },
   ar: {
     title: "مستكشف ولايات الجزائر",
-    subtitle: "تعلم 58 ولاية جزائرية",
+    subtitle: "تعلم 69 ولاية جزائرية",
     letsPlay: "العب الآن! 🚀",
     modes: {
       CLASSIC: "الوضع الكلاسيكي",
