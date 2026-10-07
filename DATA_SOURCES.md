@@ -4,10 +4,12 @@
 
 DZMap follows **Law No. 26-06 of 4 April 2026**, published in the Algerian Official Journal No. 25 on 5 April 2026. The law establishes a territorial organization of **69 wilayas**. Ministry of Interior material describes the resulting national structure as **69 wilayas and 1,541 communes** and the transition of responsibilities to the newly created wilayas through 31 December 2026.
 
-Primary legal reference:
+Primary legal references:
 
-- Journal Officiel de la République Algérienne, No. 25, 5 April 2026:
+- **Law No. 26-06 of 4 April 2026**, Journal Officiel No. 25, 5 April 2026 — establishes the 69-wilaya territorial structure:
   https://www.joradp.dz/FTP/jo-francais/2026/F2026025.pdf
+- **Presidential Decree No. 26-206 of 25 May 2026**, Journal Officiel No. 40, 3 June 2026 — fixes the official names and chief towns for wilayas 59–69 (Aflou through El Abiodh Sidi Cheikh):
+  https://www.joradp.dz/FTP/jo-francais/2026/F2026040.pdf
 
 Government reference:
 
