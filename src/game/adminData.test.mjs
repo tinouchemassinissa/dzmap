@@ -51,3 +51,30 @@ test('every wilaya has multilingual names, capital, learning region, and source'
     assert.ok(row.official_source, name + ' missing official source');
   }
 });
+
+
+function signedRingArea(ring) {
+  let area = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    area += ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+  }
+  return area / 2;
+}
+
+test('wilaya polygon winding is compatible with D3 spherical rendering', () => {
+  let outerRingCount = 0;
+  for (const feature of geo.features) {
+    const polygons = feature.geometry.type === 'Polygon'
+      ? [feature.geometry.coordinates]
+      : feature.geometry.coordinates;
+
+    for (const polygon of polygons) {
+      outerRingCount += 1;
+      assert.ok(
+        signedRingArea(polygon[0]) < 0,
+        feature.properties.name + ' outer ring must be clockwise for D3/react-simple-maps'
+      );
+    }
+  }
+  assert.equal(outerRingCount, 70);
+});
