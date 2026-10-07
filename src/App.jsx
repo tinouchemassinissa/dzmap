@@ -5,7 +5,8 @@ import confetti from 'canvas-confetti';
 import { db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { playCorrectSound, playIncorrectSound, playComboSound, playWinSound } from './audio';
-import { WILAYA_DATA } from './data';
+import { ALGERIA_ADMIN_META, WILAYA_DATA } from './data';
+import { calculatePoints, generateMultipleChoice, isAnswerCorrect, sanitizePlayerName } from './gameLogic';
 import { TRANSLATIONS } from './translations';
 import './index.css';
 
@@ -41,7 +42,11 @@ function App() {
   const [playerName, setPlayerName] = useState("");
   const [gameStarted, setGameStarted] = useState(false);
   const [shake, setShake] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('dzMapTheme');
+    if (saved) return saved !== 'light';
+    return !window.matchMedia('(prefers-color-scheme: light)').matches;
+  });
   const [showLabels, setShowLabels] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
@@ -59,6 +64,7 @@ function App() {
   const [targetWilaya, setTargetWilaya] = useState("");
   const [options, setOptions] = useState([]);
   const [triviaQuestion, setTriviaQuestion] = useState("");
+  const [triviaCorrectAnswer, setTriviaCorrectAnswer] = useState(null);
   
   const [guessedWilayas, setGuessedWilayas] = useState({});
   const [gameOver, setGameOver] = useState(false);
@@ -74,8 +80,7 @@ function App() {
   const [mapView, setMapView] = useState(DEFAULT_VIEW);
 
   const timerRef = useRef(null);
-  const audioRef = useRef(null);
-  const anthemRef = useRef(null);
+  const scoreRef = useRef(0);
 
   const fetchLeaderboard = async () => {
     try {
@@ -94,10 +99,16 @@ function App() {
   useEffect(() => {
     if (isDarkMode) {
       document.body.removeAttribute('data-theme');
+      localStorage.setItem('dzMapTheme', 'dark');
     } else {
       document.body.setAttribute('data-theme', 'light');
+      localStorage.setItem('dzMapTheme', 'light');
     }
   }, [isDarkMode]);
+
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
 
   useEffect(() => {
     // If the event fired before React loaded, it's saved here
@@ -137,7 +148,7 @@ function App() {
       if (timerRef.current) clearInterval(timerRef.current);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
-  }, [musicPlaying]);
+  }, []);
 
   useEffect(() => {
     if (score > highScore) {
@@ -153,7 +164,7 @@ function App() {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
-            triggerGameOver(0);
+            triggerGameOver(scoreRef.current);
             return 0;
           }
           return prev - 1;
@@ -200,10 +211,11 @@ function App() {
   };
 
   const startGame = () => {
-    const finalName = playerName.trim() || "Explorer";
+    const finalName = sanitizePlayerName(playerName);
     setPlayerName(finalName);
     setGameStarted(true);
     setScore(0);
+    scoreRef.current = 0;
     setStreak(0);
     setLives(3);
     setTimeLeft(60);
@@ -222,11 +234,13 @@ function App() {
   };
 
   const saveToLeaderboard = async (finalScore) => {
-    if (finalScore > 0 && playerName) {
+    const cleanName = sanitizePlayerName(playerName);
+    const safeScore = Math.max(0, Math.min(50000, Math.round(Number(finalScore) || 0)));
+    if (safeScore > 0 && cleanName) {
       try {
         await addDoc(collection(db, "algeria-map-leaderboard"), {
-          name: playerName,
-          score: finalScore,
+          name: cleanName,
+          score: safeScore,
           mode: mode,
           date: new Date().toISOString()
         });
@@ -240,18 +254,6 @@ function App() {
   const triggerGameOver = (finalScore) => {
     setGameOver(true);
     saveToLeaderboard(finalScore);
-  };
-
-  const generateMultipleChoice = (correctAnswer, type) => {
-    const opts = new Set([correctAnswer]);
-    while(opts.size < 4) {
-      const randState = WILAYA_NAMES[Math.floor(Math.random() * WILAYA_NAMES.length)];
-      if (type === 'name') opts.add(randState);
-      else if (type === 'population') opts.add(WILAYA_DATA[randState].population);
-      else if (type === 'area') opts.add(WILAYA_DATA[randState].area);
-      else if (type === 'capital') opts.add(WILAYA_DATA[randState].capital);
-    }
-    return Array.from(opts).sort(() => Math.random() - 0.5);
   };
 
   const pickNewTarget = (currentGuessed) => {
@@ -278,46 +280,53 @@ function App() {
         anthemMusic.play().catch(e => console.log(e));
       }
       
-      const duration = 50 * 1000;
-      const animationEnd = Date.now() + duration;
-      const interval = setInterval(function() {
-        var timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-        var particleCount = 50 * (timeLeft / duration);
-        confetti({ startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
-      }, 250);
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const duration = reducedMotion ? 250 : 3500;
+      if (!reducedMotion) {
+        const animationEnd = Date.now() + duration;
+        const interval = setInterval(function() {
+          const remainingMs = animationEnd - Date.now();
+          if (remainingMs <= 0) return clearInterval(interval);
+          confetti({
+            startVelocity: 24,
+            spread: 360,
+            ticks: 50,
+            zIndex: 100,
+            particleCount: Math.max(8, Math.round(24 * (remainingMs / duration))),
+            origin: { x: Math.random(), y: Math.random() * 0.35 }
+          });
+        }, 260);
+      }
 
       setTimeout(() => {
-        triggerGameOver(score);
-      }, 50000);
+        triggerGameOver(scoreRef.current);
+      }, duration);
       return;
     }
     const randomState = remaining[Math.floor(Math.random() * remaining.length)];
     setTargetWilaya(randomState);
 
     if (mode === 'REVERSE') {
-      setOptions(generateMultipleChoice(randomState, 'name'));
+      setOptions(generateMultipleChoice(randomState, 'name', WILAYA_DATA, WILAYA_NAMES));
     } else if (mode === 'TRIVIA') {
       const types = ['capital', 'region'];
       const questionType = types[Math.floor(Math.random() * types.length)];
+      const correctValue = WILAYA_DATA[randomState][questionType];
       setTriviaQuestion(questionType);
-      setOptions(generateMultipleChoice(WILAYA_DATA[randomState][questionType], questionType));
+      setTriviaCorrectAnswer(correctValue);
+      setOptions(generateMultipleChoice(correctValue, questionType, WILAYA_DATA, WILAYA_NAMES));
     }
   };
 
   const handleGuess = (guess) => {
     if (gameOver || currentFact || !gameStarted) return;
-    
-    let isCorrect = false;
-    
-    if (mode === 'REVERSE' || mode === 'TRIVIA') {
-      const isCorrect = (guess === targetWilaya);
-      processAnswer(isCorrect, targetWilaya, null);
-    } else {
-      processAnswer(guess === targetWilaya, targetWilaya, null);
-    }
+    const correct = isAnswerCorrect({
+      mode,
+      guess,
+      targetWilaya,
+      triviaCorrectAnswer,
+    });
+    processAnswer(correct, targetWilaya, null);
   };
 
   const handleMapClick = (geo, evt) => {
@@ -416,8 +425,9 @@ function App() {
       const newStreak = streak + 1;
       setStreak(newStreak);
       
-      const points = 10 * newStreak;
-      const newScore = score + points;
+      const points = calculatePoints(newStreak);
+      const newScore = scoreRef.current + points;
+      scoreRef.current = newScore;
       setScore(newScore);
       if (mode === 'TIME_ATTACK') setTimeLeft(prev => prev + 2 + Math.floor(newStreak / 3));
       
@@ -499,10 +509,10 @@ function App() {
   };
 
   return (
-    <div className={`game-wrapper ${shake ? 'combo-shake' : ''}`} style={{ width: '100vw', height: '100vh' }}>
+    <div className={`game-wrapper ${shake ? 'combo-shake' : ''}`}>
       {/* Removed Audio Elements from here since they exist in index.html */}
       {!gameStarted ? (
-        <div className="game-container" style={{ justifyContent: 'center' }}>
+        <div className="game-container home-screen">
           <button className="icon-btn about-btn" onClick={() => setShowAbout(true)} title="About Algeria Wilaya Explorer" style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 100 }}>
             ℹ️
           </button>
@@ -526,7 +536,7 @@ function App() {
                   <div><strong>Author:</strong> Massinissa TINOUCHE</div>
                   <div><strong>Address:</strong> Algeria</div>
                   <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', borderLeft: '4px solid var(--accent-blue)' }}>
-                    <strong>Algeria Wilaya Explorer</strong> is an interactive educational PWA designed to help students learn about the 58 Algerian wilayas, their capitals, and geographic regions. Play offline, earn badges, and compete on the global leaderboard!
+                    <strong>Algeria Wilaya Explorer</strong> is an interactive educational PWA designed to help students learn about the 69 Algerian wilayas, their capitals, and geographic regions. The current legal structure contains {ALGERIA_ADMIN_META.official_wilaya_count} wilayas and {ALGERIA_ADMIN_META.official_commune_count} communes; the 2026 transition of responsibilities continues through 31 December 2026. Play offline, earn badges, and compete on the global leaderboard!
                   </div>
                 </div>
                 <button className="btn-primary" onClick={() => setShowAbout(false)} style={{ marginTop: '2rem' }}>
@@ -553,7 +563,7 @@ function App() {
             </div>
           )}
 
-        <div className="glass-panel modal">
+        <main className="glass-panel home-panel">
           <div className="mascot"><img src="/pwa-192x192.png" alt="Icon" width="48" height="48" style={{ borderRadius: '50%' }} /></div>
           <h1 className="title">{t.title}</h1>
           
@@ -608,7 +618,7 @@ function App() {
               ))}
             </div>
           )}
-        </div>
+        </main>
       </div>
       ) : (
       <div className={`game-container ${lang === 'ar' ? 'rtl-layout' : ''}`}>
@@ -679,7 +689,7 @@ function App() {
               <image href="https://upload.wikimedia.org/wikipedia/commons/7/77/Flag_of_Algeria.svg" width="800" height="600" preserveAspectRatio="xMidYMid slice" />
             </pattern>
           </defs>
-          <ZoomableGroup className="rsm-zoomable-group" zoom={mapView.zoom} center={mapView.center}>
+          <ZoomableGroup className="rsm-zoomable-group" zoom={mapView.zoom} center={mapView.center} filterZoomEvent={() => false}>
             <Geographies geography={geoUrl}>
               {({ geographies }) => (
                 <g className={shake ? "map-glow" : ""}>
@@ -716,7 +726,7 @@ function App() {
                       className = "state-path win-animation";
                     }
 
-                    if (Object.keys(guessedWilayas).filter(k => guessedWilayas[k] === "correct").length === 58) {
+                    if (Object.keys(guessedWilayas).filter(k => guessedWilayas[k] === "correct").length === WILAYA_NAMES.length) {
                       className += " win-flag";
                     }
 
@@ -726,6 +736,15 @@ function App() {
                         geography={geo}
                         className={className}
                         onClick={(evt) => handleMapClickFinal(geo, evt)}
+                        onKeyDown={(evt) => {
+                          if (evt.key === 'Enter' || evt.key === ' ') {
+                            evt.preventDefault();
+                            handleMapClickFinal(geo, evt);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${getWilayaDisplayName(stateName)} wilaya`}
                         style={{
                           default: { outline: "none" },
                           hover: { outline: "none" },
@@ -814,7 +833,7 @@ function App() {
             </div>
             
             {studyData.loading ? (
-              <div style={{ padding: '3rem', color: '#94a3b8' }}>Fetching official Wikipedia records... 📚</div>
+              <div style={{ padding: '3rem', color: '#94a3b8' }}>Loading learning information... 📚</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', textAlign: 'left' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
