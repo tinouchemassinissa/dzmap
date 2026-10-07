@@ -83,6 +83,10 @@ function App() {
   const scoreRef = useRef(0);
 
   const fetchLeaderboard = async () => {
+    if (!db) {
+      setLeaderboard([]);
+      return;
+    }
     try {
       const q = query(collection(db, "algeria-map-leaderboard"), orderBy("score", "desc"), limit(5));
       const querySnapshot = await getDocs(q);
@@ -236,7 +240,7 @@ function App() {
   const saveToLeaderboard = async (finalScore) => {
     const cleanName = sanitizePlayerName(playerName);
     const safeScore = Math.max(0, Math.min(50000, Math.round(Number(finalScore) || 0)));
-    if (safeScore > 0 && cleanName) {
+    if (safeScore > 0 && cleanName && db) {
       try {
         await addDoc(collection(db, "algeria-map-leaderboard"), {
           name: cleanName,
@@ -369,7 +373,9 @@ function App() {
            stateName,
            extract: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
            thumbnail: null,
-           url: `https://en.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
+           url: WILAYA_DATA[stateName]?.created === 2026
+             ? ALGERIA_ADMIN_META.official_source
+             : `https://en.wikipedia.org/wiki/${stateName.replace(/ /g, '_')}_Province`
         });
       }
       return;
@@ -400,8 +406,8 @@ function App() {
                             `${regionLabelEn} ${regionStates.join(', ')}`;
         
         setStudyData({
-          stateName: `${region} Region`,
-          extract: extractText,
+          stateName: `${region} Learning Region`,
+          extract: `${extractText} — This is a broad learning group used by the app, not an official Algerian administrative division.`,
           thumbnail: null,
           url: `https://en.wikipedia.org/wiki/Geography_of_Algeria`
         });
@@ -453,34 +459,43 @@ function App() {
         colors: ['#22c55e', '#ffffff', '#3b82f6', '#facc15']
       });
 
-      setCurrentFact({
-        state: stateName,
-        text: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
-        pointsEarned: points
-      });
+      if (mode === 'TIME_ATTACK') {
+        setCurrentFact(null);
+        setTimeout(() => pickNewTarget(newGuessed), 120);
+      } else {
+        setCurrentFact({
+          state: stateName,
+          text: lang === 'ar' && WILAYA_DATA[stateName]?.fact_ar ? WILAYA_DATA[stateName].fact_ar : lang === 'fr' && WILAYA_DATA[stateName]?.fact_fr ? WILAYA_DATA[stateName].fact_fr : WILAYA_DATA[stateName].fact,
+          pointsEarned: points
+        });
+      }
 
     } else {
       playIncorrectSound();
       setStreak(0);
-      setGuessedWilayas(prev => ({ ...prev, [stateName]: "incorrect" }));
+      if (mode !== 'REVERSE' && mode !== 'TRIVIA') {
+        setGuessedWilayas(prev => ({ ...prev, [stateName]: "incorrect" }));
+      }
       
       if (mode === 'TIME_ATTACK') {
         setTimeLeft(prev => Math.max(0, prev - 5));
       } else {
         setLives(prev => {
           const newLives = prev - 1;
-          if (newLives <= 0) triggerGameOver(score);
+          if (newLives <= 0) triggerGameOver(scoreRef.current);
           return newLives;
         });
       }
 
-      setTimeout(() => {
-        setGuessedWilayas(prev => {
-          const updated = { ...prev };
-          if (updated[stateName] === "incorrect") delete updated[stateName];
-          return updated;
-        });
-      }, 800);
+      if (mode !== 'REVERSE' && mode !== 'TRIVIA') {
+        setTimeout(() => {
+          setGuessedWilayas(prev => {
+            const updated = { ...prev };
+            if (updated[stateName] === "incorrect") delete updated[stateName];
+            return updated;
+          });
+        }, 800);
+      }
     }
   };
 
@@ -509,7 +524,7 @@ function App() {
   };
 
   return (
-    <div className={`game-wrapper ${shake ? 'combo-shake' : ''}`}>
+    <div className={`game-wrapper ${shake ? 'combo-shake' : ''} ${lang === 'ar' ? 'rtl-layout' : ''}`}>
       {/* Removed Audio Elements from here since they exist in index.html */}
       {!gameStarted ? (
         <div className="game-container home-screen">
@@ -578,14 +593,16 @@ function App() {
           <h3 style={{ marginTop: '0.5rem' }}>{t.selectGameMode}</h3>
           <div className="mode-grid">
             {Object.values(GAME_MODES).map(m => (
-              <div 
-                key={m.id} 
+              <button
+                type="button"
+                key={m.id}
                 className={`mode-card ${mode === m.id ? 'active' : ''}`}
                 onClick={() => setMode(m.id)}
+                aria-pressed={mode === m.id}
               >
                 <div className="mode-title">{t.modes[m.id]}</div>
                 <div className="mode-desc">{t.modeDescriptions[m.id]}</div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -597,6 +614,9 @@ function App() {
             <button className="btn-primary" style={{ background: '#10b981' }} onClick={handleInstallClick}>
               {t.installApp}
             </button>
+          </div>
+          <div className="admin-update-note">
+            <strong>2026 administrative update:</strong> {ALGERIA_ADMIN_META.official_wilaya_count} wilayas and {ALGERIA_ADMIN_META.official_commune_count} communes under Law 26-06. New-wilaya responsibilities transition through 31 Dec 2026.
           </div>
 
           <div className="badges-container">
